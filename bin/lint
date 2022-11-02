@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+poetry run flake8 auth tests
+
+poetry run isort --check-only --df auth tests
+
+poetry run black --check --diff auth tests

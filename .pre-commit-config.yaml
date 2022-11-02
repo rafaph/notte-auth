@@ -1,0 +1,25 @@
+repos:
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v2.35.0
+    hooks:
+      - id: commitizen
+  - repo: local
+    hooks:
+      - id: lint
+        name: lint
+        entry: bin/lint
+        types:
+          - python
+        language: system
+        pass_filenames: false
+        stages:
+          - commit
+      - id: mypy
+        name: mypy
+        entry: bin/mypy
+        types:
+          - python
+        language: system
+        pass_filenames: false
+        stages:
+          - commit

@@ -12,4 +12,8 @@ up:
 
 .PHONY: shell
 shell:
-	$(call run,bash)
+	$(call run,bin/shell)
+
+.PHONY: dclear
+dclear:
+	docker rmi -f notte-dev-auth:latest

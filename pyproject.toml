@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "notte-auth"
+version = "1.0.0"
+description = "Notte auth service"
+authors = ["Raphael Castro <rafaphcastro@gmail.com>"]
+readme = "README.md"
+packages = [{include = "auth"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+option = "^2.1.0"
+pydantic = "^1.10.2"
+sanic = "^22.9.1"
+httpx = "^0.23.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+pytest-testdox = "^3.0.1"
+pytest-clarity = "^1.0.1"
+assertpy = "^1.1"
+pytest-asyncio = "^0.20.1"
+pytest-only = "^2.0.0"
+pytest-mock = "^3.10.0"
+pytest-cov = "^4.0.0"
+black = "^22.10.0"
+isort = "^5.10.1"
+flake8 = "^5.0.4"
+pre-commit = "^2.20.0"
+flake8-bugbear = "^22.10.27"
+flake8-noqa = "^1.2.9"
+mypy = "^0.982"
+faker = "^15.1.1"
+portpicker = "^1.5.2"
+sanic-testing = "^22.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "-s -vv --testdox"
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+follow_imports = "silent"
+ignore_missing_imports = true
+no_implicit_reexport = true
+show_error_codes = true
+show_error_context = true
+strict_equality = true
+strict_optional = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
