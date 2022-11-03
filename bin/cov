@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+rm -rf htmlcov .coverage .pytest_cache
+poetry run pytest --cov=auth --cov-report=term --cov-report=html tests/
