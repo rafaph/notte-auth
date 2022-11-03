@@ -10,7 +10,7 @@ class HTTPUserClient(UserClient):
 
     async def login(self, request: LoginRequest) -> Result[LoginResponse, Exception]:
         try:
-            response = await self._client.post("/login", json=request.json())
+            response = await self._client.post("/users/verify", json=request.json())
             response.raise_for_status()
             login_response = LoginResponse.parse_obj(response.json())
             result = Ok(login_response)

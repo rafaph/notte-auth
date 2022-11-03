@@ -1,19 +1,21 @@
 from abc import ABCMeta, abstractmethod
 
 from option import Result
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
+from auth.lib.pydantic import UUIDStr
 
 
 class LoginRequest(BaseModel):
-    username: str
+    email: EmailStr
     password: str
 
 
 class LoginResponse(BaseModel):
-    user_id: str
+    id: UUIDStr
 
 
 class UserClient(metaclass=ABCMeta):
     @abstractmethod
     async def login(self, request: LoginRequest) -> Result[LoginResponse, Exception]:
-        ...
+        ...  # pragma: no cover
