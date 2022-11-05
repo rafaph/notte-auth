@@ -4,7 +4,7 @@ import pytest
 from assertpy import assert_that
 from faker import Faker
 
-from auth.domain.clients import LoginRequest
+from auth.application.clients import LoginRequest
 from auth.infra.clients import HTTPUserClient
 from tests.helpers import MockRoute, MockServer
 

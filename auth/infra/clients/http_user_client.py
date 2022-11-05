@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 from option import Err, Ok, Result
 
-from auth.domain.clients import LoginRequest, LoginResponse, UserClient
+from auth.application.clients import LoginRequest, LoginResponse, UserClient
 
 
 class HTTPUserClient(UserClient):
