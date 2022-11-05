@@ -240,6 +240,21 @@ typing-extensions = ">=3.7.4.2"
 dev = ["flake8 (>=3.8.0,<5.0)", "flake8-annotations", "flake8-bandit", "flake8-bugbear", "flake8-commas", "flake8-comprehensions", "flake8-continuation", "flake8-datetimez", "flake8-docstrings", "flake8-import-order", "flake8-literal", "flake8-modern-annotations", "flake8-noqa", "flake8-polyfill", "flake8-requirements", "flake8-tabs", "flake8-typechecking-import", "flake8-use-fstring", "mypy", "pep8-naming"]
 
 [[package]]
+name = "flake8-pyproject"
+version = "1.1.0.post0"
+description = "Flake8 plug-in loading the configuration from pyproject.toml"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+Flake8 = ">=5,<6"
+TOMLi = {version = "*", markers = "python_version < \"3.11\""}
+
+[package.extras]
+test = ["pyTest", "pyTest-cov"]
+
+[[package]]
 name = "h11"
 version = "0.12.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -832,7 +847,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "ed7c13b1a5510ad97ebfd7465fadc693eaa03385d64d01bac2ee726f8ddb6083"
+content-hash = "1632964ba6ce0f329d889caf5efacc63b47a08160b29e7190764fe9dadc3fd93"
 
 [metadata.files]
 aiofiles = [
@@ -980,6 +995,9 @@ flake8-bugbear = [
 flake8-noqa = [
     {file = "flake8-noqa-1.2.9.tar.gz", hash = "sha256:26d92ca6b72dec732d294e587a2bdeb66dab01acc609ed6a064693d6baa4e789"},
     {file = "flake8_noqa-1.2.9-py3-none-any.whl", hash = "sha256:445618162e0bbae1b9d983326d4e39066c5c6de71ba0c444ca2d4d1fa5b2cdb7"},
+]
+flake8-pyproject = [
+    {file = "flake8_pyproject-1.1.0.post0-py3-none-any.whl", hash = "sha256:55bc7cbb4272dca45ba42521954452be9d443237fa9b78a09d0424bbd5c94fab"},
 ]
 h11 = [
     {file = "h11-0.12.0-py3-none-any.whl", hash = "sha256:36a3cb8c0a032f56e2da7084577878a035d3b61d104230d4bd49c0c6b555a9c6"},

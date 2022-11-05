@@ -1,84 +1,96 @@
 import asyncio
-import multiprocessing
+import json
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from multiprocessing import Process
 from typing import Any, Type
+from urllib.parse import urlparse
 
 import httpx
 import portpicker
-from faker import Faker
-from pydantic import BaseModel, root_validator
-from sanic import HTTPResponse, Request, Sanic, json
-from sanic.models.handler_types import RouteHandler
-
-faker = Faker()
-
-
-def serve(app: Sanic, host: str, port: int) -> None:
-    app.run(
-        host,
-        port,
-        access_log=False,
-        single_process=True,
-        motd=False,
-        verbosity=2,
-        noisy_exceptions=False,
-    )
+from pydantic import BaseModel
 
 
 class MockResponse(BaseModel):
     status: int
-    data: dict[str, Any] | None = None
+    data: list[Any] | dict[str, Any] | None = None
 
 
 class MockRoute(BaseModel):
     method: str
     path: str
-    response: MockResponse | None = None
-    handler: RouteHandler | None = None
+    response: MockResponse
 
-    @root_validator(pre=True)
-    def _check_response_and_handler(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if not ("response" in values or "handler" in values):
-            raise ValueError('one of the fields "response" or "handler" are missing')
-        return values
+
+def create_server_handler(routes: list[MockRoute]) -> Type[BaseHTTPRequestHandler]:
+    class handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            self._handle("GET")
+
+        def do_POST(self) -> None:
+            self._handle("POST")
+
+        def do_PUT(self) -> None:
+            self._handle("PUT")
+
+        def do_PATCH(self) -> None:
+            self._handle("PATCH")
+
+        def do_DELETE(self) -> None:
+            self._handle("DELETE")
+
+        def do_OPTIONS(self) -> None:
+            self._handle("OPTIONS")
+
+        def log_message(self, _format: str, *args: Any) -> None:
+            pass
+
+        def _handle(self, method: str) -> None:
+            path = urlparse(self.path).path
+            for route in routes:
+                if route.path == path and route.method == method:
+                    self.send_response(route.response.status)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+                    data = (
+                        json.dumps(route.response.data) if route.response.data else ""
+                    )
+                    self.wfile.write(data.encode("utf-8"))
+                    return
+            self.send_response(HTTPStatus.NOT_FOUND)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"message": "not found"}).encode("utf-8"))
+
+    return handler
+
+
+def start_server(host: str, port: int, handler: Type[BaseHTTPRequestHandler]) -> None:
+    server = HTTPServer((host, port), handler)
+    server.serve_forever()
 
 
 class MockServer:
-    _client: httpx.AsyncClient
-    _app: Sanic
-    _process: multiprocessing.Process
-
-    def __init__(self, routes: list[MockRoute] | None = None) -> None:
-        self._app = Sanic(faker.pystr(), configure_logging=False)
-        if routes:
-            self._add_routes(routes)
-
-    def _add_routes(self, routes: list[MockRoute]) -> None:
-        def create_handler(mock_route: MockRoute) -> RouteHandler:
-            assert mock_route.response
-            response = mock_route.response
-
-            async def handler(_request: Request) -> HTTPResponse:
-                return json(body=response.data, status=response.status)
-
-            return handler
-
-        status_route: MockRoute = MockRoute.parse_obj(
-            {
-                "path": "/status",
-                "method": "GET",
-                "response": {"status": 200, "data": {"status": "ok"}},
-            }
-        )
-        routes = [*routes, status_route]
-        for route in routes:
-            if not route.handler:
-                route.handler = create_handler(route)
-            self._app.add_route(route.handler, route.path, methods=[route.method])
+    def __init__(self, routes: list[MockRoute]) -> None:
+        self._routes = [
+            *routes,
+            MockRoute.parse_obj(
+                {
+                    "path": "/healthz",
+                    "method": "GET",
+                    "response": {"status": HTTPStatus.OK, "data": {"message": "ok"}},
+                }
+            ),
+        ]
+        self._process: Process | None = None
+        self._base_url: str | None = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _is_ready(self) -> bool:
         try:
-            response = await self._client.get("/status")
-            is_ready = response.status_code == 200
+            assert self._client
+            response = await self._client.get("/healthz")
+            is_ready = response.status_code == HTTPStatus.OK
         except Exception:
             is_ready = False
 
@@ -93,23 +105,38 @@ class MockServer:
         if count == times:
             raise Exception("server is not ready yet")
 
+    async def up(self) -> None:
+        port = portpicker.pick_unused_port()
+        host = "127.0.0.1"
+        self._base_url = f"http://{host}:{port}"
+        self._process = Process(
+            target=start_server,
+            args=(host, port, create_server_handler(self._routes)),
+            daemon=True,
+        )
+        self._process.start()
+        self._client = httpx.AsyncClient(base_url=self._base_url)
+        await self._wait_start()
+
     async def _wait_stop(self, times: int = 10, timeout: int = 200) -> None:
         count = 0
-        while count < times and self.process.is_alive():
+        assert self._process
+        while count < times and self._process.is_alive():
             await asyncio.sleep(timeout / 1000)
             count += 1
         if count == times:
             raise Exception("server is still running")
 
+    async def down(self) -> None:
+        assert self._process
+        self._process.terminate()
+        await self._wait_stop()
+        assert self._client
+        await self._client.aclose()
+
     async def __aenter__(self) -> httpx.AsyncClient:
-        port = portpicker.pick_unused_port()
-        host = "127.0.0.1"
-        self.process = multiprocessing.Process(
-            target=serve, args=(self._app, host, port), daemon=True
-        )
-        self.process.start()
-        self._client = httpx.AsyncClient(base_url=f"http://{host}:{port}")
-        await self._wait_start()
+        await self.up()
+        assert self._client
         return self._client
 
     async def __aexit__(
@@ -118,7 +145,4 @@ class MockServer:
         exc_val: BaseException | None,
         exc_tb: Any,
     ) -> None:
-        self.process.terminate()
-        await self._wait_stop()
-        Sanic.unregister_app(self._app)
-        await self._client.aclose()
+        await self.down()

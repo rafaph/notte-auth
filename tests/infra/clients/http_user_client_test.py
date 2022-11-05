@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import pytest
 from assertpy import assert_that
 from faker import Faker
@@ -16,7 +18,7 @@ class TestHttpUserClient:
             {
                 "path": "/users/verify",
                 "method": "POST",
-                "response": {"status": 200, "data": {"id": faker.uuid4()}},
+                "response": {"status": HTTPStatus.OK, "data": {"id": faker.uuid4()}},
             }
         )
         async with MockServer([login_route]) as client:
@@ -37,7 +39,7 @@ class TestHttpUserClient:
                 "path": "/users/verify",
                 "method": "POST",
                 "response": {
-                    "status": 500,
+                    "status": HTTPStatus.INTERNAL_SERVER_ERROR,
                 },
             }
         )

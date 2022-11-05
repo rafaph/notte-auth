@@ -33,6 +33,7 @@ mypy = "^0.982"
 faker = "^15.1.1"
 portpicker = "^1.5.2"
 sanic-testing = "^22.9.0"
+flake8-pyproject = "^1.1.0.post0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -49,7 +50,7 @@ disallow_untyped_calls = true
 disallow_untyped_decorators = true
 disallow_untyped_defs = true
 check_untyped_defs = true
-follow_imports = "silent"
+follow_imports = "normal"
 ignore_missing_imports = true
 no_implicit_reexport = true
 show_error_codes = true
@@ -65,3 +66,10 @@ init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
 warn_untyped_fields = true
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203"
