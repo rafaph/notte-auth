@@ -18,4 +18,4 @@ class LoginResponse(BaseModel):
 class UserClient(metaclass=ABCMeta):
     @abstractmethod
     async def login(self, request: LoginRequest) -> Result[LoginResponse, Exception]:
-        ...  # pragma: no cover
+        raise NotImplementedError()  # pragma: no cover
