@@ -1,3 +1,3 @@
-from .config import Config
+from .config import Config, JwtConfig
 
-__all__: list[str] = ["Config"]
+__all__: list[str] = ["Config", "JwtConfig"]

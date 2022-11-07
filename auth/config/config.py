@@ -2,7 +2,7 @@ import os
 from typing import Annotated
 
 from option import Result
-from pydantic import AnyHttpUrl, BaseModel, ValidationError, conint, constr
+from pydantic import AnyHttpUrl, BaseModel, ValidationError, conint, constr, validator
 
 from auth.lib.pydantic import safe_parse
 
@@ -12,8 +12,9 @@ class JwtConfig(BaseModel):
     private_key: Annotated[str, constr(min_length=1)]
     public_key: Annotated[str, constr(min_length=1)]
 
-    class Config:
-        anystr_strip_whitespace = True
+    @validator("private_key", "public_key")
+    def remove_extra_backslash(cls, value: str) -> str:
+        return value.replace(r"\n", "\n")
 
 
 class UserConfig(BaseModel):
