@@ -27,7 +27,7 @@ class TestHttpUserClient:
             request = LoginRequest(email=faker.email(), password=faker.password())
 
             # when
-            response = await user_client.login(request)
+            response = await user_client.login(request=request)
 
             # then
             assert_that(response.is_ok).is_true()
@@ -49,7 +49,7 @@ class TestHttpUserClient:
             request = LoginRequest(email=faker.email(), password=faker.password())
 
             # when
-            response = await user_client.login(request)
+            response = await user_client.login(request=request)
 
             # then
             assert_that(response.is_err).is_true()

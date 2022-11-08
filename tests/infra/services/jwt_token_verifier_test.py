@@ -21,7 +21,7 @@ class TestJwtTokenVerifier:
         verifier = JwtTokenVerifier(config)
 
         # when
-        result = await verifier.verify(token)
+        result = await verifier.verify(token=token)
 
         # then
         assert_that(result.is_ok).is_true()
@@ -39,7 +39,7 @@ class TestJwtTokenVerifier:
         await asyncio.sleep(expiration_in_seconds)
 
         # when
-        result = await verifier.verify(token)
+        result = await verifier.verify(token=token)
 
         # then
         assert_that(result.is_err).is_true()

@@ -33,7 +33,7 @@ class TestJwtTokenGenerator:
         payload = Payload(user_id=faker.uuid4())
 
         # when
-        result = await generator.generate(payload)
+        result = await generator.generate(payload=payload)
 
         # then
         assert_that(result.is_err).is_true()

@@ -1,21 +1,21 @@
 from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
 
 from option import Result
-from pydantic import BaseModel, EmailStr
-
-from auth.lib.pydantic import UUIDStr
 
 
-class LoginRequest(BaseModel):
-    email: EmailStr
+@dataclass
+class LoginRequest:
+    email: str
     password: str
 
 
-class LoginResponse(BaseModel):
-    id: UUIDStr
+@dataclass
+class LoginResponse:
+    id: str
 
 
 class UserClient(metaclass=ABCMeta):
     @abstractmethod
-    async def login(self, request: LoginRequest) -> Result[LoginResponse, Exception]:
+    async def login(self, *, request: LoginRequest) -> Result[LoginResponse, Exception]:
         raise NotImplementedError()  # pragma: no cover

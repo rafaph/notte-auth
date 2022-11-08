@@ -10,7 +10,7 @@ class JwtTokenVerifier(TokenVerifier):
     def __init__(self, config: JwtConfig) -> None:
         self._config = config
 
-    async def verify(self, token: str) -> Result[Payload, Exception]:
+    async def verify(self, *, token: str) -> Result[Payload, Exception]:
         try:
             token_payload = jwt.decode(
                 token,

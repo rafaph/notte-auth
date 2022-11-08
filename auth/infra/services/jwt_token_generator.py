@@ -27,7 +27,7 @@ class JwtTokenGenerator(TokenGenerator):
             algorithm=self._config.algorithm,
         )
 
-    async def generate(self, payload: Payload) -> Result[str, Exception]:
+    async def generate(self, *, payload: Payload) -> Result[str, Exception]:
         try:
             result = Ok(self._generate(payload))
         except Exception as exc:
