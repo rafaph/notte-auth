@@ -29,7 +29,7 @@ def _gen_keys() -> tuple[str, str]:
 
 def make_jwt_config(
     *,
-    expiration_in_minutes: int | None = None,
+    expiration_in_minutes: float | None = None,
     private_key: str | None = None,
     public_key: str | None = None
 ) -> JwtConfig:
@@ -43,7 +43,7 @@ def make_jwt_config(
         public_key = faker.pystr()
 
     if expiration_in_minutes is None:
-        expiration_in_minutes = faker.pyint()
+        expiration_in_minutes = faker.pyfloat(min_value=1, max_value=15)
 
     return JwtConfig(
         expiration_in_minutes=expiration_in_minutes,

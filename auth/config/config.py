@@ -2,15 +2,24 @@ import os
 from typing import Annotated
 
 from option import Result
-from pydantic import AnyHttpUrl, BaseModel, ValidationError, conint, constr, validator
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    ValidationError,
+    confloat,
+    conint,
+    constr,
+    validator,
+)
 
 from auth.lib.pydantic import safe_parse
 
 
 class JwtConfig(BaseModel):
-    expiration_in_minutes: Annotated[int, conint(gt=0)]
+    expiration_in_minutes: Annotated[float, confloat(gt=0)]
     private_key: Annotated[str, constr(min_length=1)]
     public_key: Annotated[str, constr(min_length=1)]
+    algorithm: str = "EdDSA"
 
     @validator("private_key", "public_key")
     def remove_extra_backslash(cls, value: str) -> str:

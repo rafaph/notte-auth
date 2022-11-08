@@ -24,7 +24,7 @@ class JwtTokenGenerator(TokenGenerator):
                 "iss": "urn:notte",
             },
             key=self._config.private_key,
-            algorithm="EdDSA",
+            algorithm=self._config.algorithm,
         )
 
     async def generate(self, payload: Payload) -> Result[str, Exception]:
